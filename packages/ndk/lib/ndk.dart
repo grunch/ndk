@@ -18,6 +18,7 @@ export 'domain_layer/entities/broadcast_response.dart';
  * import 'package:ndk/entities.dart' as ndk_entities;
  * 
  */
+export 'domain_layer/entities/unsigned_event.dart';
 export 'domain_layer/entities/nip_01_event.dart';
 export 'domain_layer/entities/filter.dart';
 export 'domain_layer/entities/nip_51_list.dart';

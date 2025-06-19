@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../../data_layer/repositories/signers/bip340_event_signer.dart';
+import '../../entities/unsigned_event.dart';
 import '../../entities/nip_01_event.dart';
 import '../accounts/accounts.dart';
 import '../../../shared/nips/nip01/bip340.dart';
@@ -17,12 +18,14 @@ class GiftWrap {
   /// [rumor] the event you want to wrap \
   /// [recipientPubkey] the reciever of the rumor \
   /// [returns] the wrapped event
-  Future<Nip01Event> toGiftWrap({
-    required Nip01Event rumor,
+  Future<UnsignedEvent> toGiftWrap({
+    required UnsignedEvent rumor,
     required String recipientPubkey,
   }) async {
-    final sealedRumor =
-        await sealRumor(rumor: rumor, recipientPubkey: recipientPubkey);
+    final sealedRumor = await sealRumor(
+      rumor: rumor,
+      recipientPubkey: recipientPubkey,
+    );
 
     final giftWrap = await wrapEvent(
       recipientPublicKey: recipientPubkey,
@@ -34,9 +37,7 @@ class GiftWrap {
   /// Unwraps a gift-wrapped event to retrieve the original rumor \
   /// [giftWrap] the gift-wrapped event to unwrap \
   /// [returns] the original rumor event
-  Future<Nip01Event> fromGiftWrap({
-    required Nip01Event giftWrap,
-  }) async {
+  Future<UnsignedEvent> fromGiftWrap({required UnsignedEvent giftWrap}) async {
     if (giftWrap.kind != kGiftWrapEventkind) {
       throw Exception("Event is not a gift wrap (kind:1059)");
     }
@@ -48,7 +49,7 @@ class GiftWrap {
   }
 
   /// Creates a rumor (unsigned event)
-  Future<Nip01Event> createRumor({
+  Future<UnsignedEvent> createRumor({
     String? customPubkey,
     required String content,
     required int kind,
@@ -62,7 +63,7 @@ class GiftWrap {
       throw Exception("cannot create crumor: no pubkey provided");
     }
 
-    final Nip01Event rumor = Nip01Event(
+    final UnsignedEvent rumor = UnsignedEvent(
       pubKey: usedPubkey,
       kind: kind,
       tags: tags,
@@ -75,7 +76,7 @@ class GiftWrap {
   /// Seals a rumor (creates a kind:13 event)
   ///
   Future<Nip01Event> sealRumor({
-    required Nip01Event rumor,
+    required UnsignedEvent rumor,
     required String recipientPubkey,
   }) async {
     final account = accounts.getLoggedAccount();
@@ -102,9 +103,7 @@ class GiftWrap {
     return sealEvent;
   }
 
-  Future<Nip01Event> unsealRumor({
-    required Nip01Event sealedEvent,
-  }) async {
+  Future<Nip01Event> unsealRumor({required Nip01Event sealedEvent}) async {
     final account = accounts.getLoggedAccount();
     if (account == null) {
       throw Exception("Cannot decrypt without account");
@@ -152,7 +151,7 @@ class GiftWrap {
     }
 
     final tags = <List<String>>[
-      ['p', recipientPublicKey]
+      ['p', recipientPublicKey],
     ];
 
     // Add any additional tags if provided
@@ -179,9 +178,7 @@ class GiftWrap {
     return giftWrapEvent;
   }
 
-  Future<Nip01Event> unwrapEvent({
-    required Nip01Event wrappedEvent,
-  }) async {
+  Future<Nip01Event> unwrapEvent({required Nip01Event wrappedEvent}) async {
     final account = accounts.getLoggedAccount();
     if (account == null) {
       throw Exception("Cannot decrypt without account");
