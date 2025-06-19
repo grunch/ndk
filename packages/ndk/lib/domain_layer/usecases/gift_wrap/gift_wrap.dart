@@ -14,11 +14,11 @@ class GiftWrap {
 
   GiftWrap({required this.accounts});
 
-  /// converts a Nip01Event to a giftWrap Nip01Event \
+  /// converts a UnsignedEvent to a giftWrap Nip01Event \
   /// [rumor] the event you want to wrap \
   /// [recipientPubkey] the reciever of the rumor \
   /// [returns] the wrapped event
-  Future<UnsignedEvent> toGiftWrap({
+  Future<Nip01Event> toGiftWrap({
     required UnsignedEvent rumor,
     required String recipientPubkey,
   }) async {
@@ -37,7 +37,7 @@ class GiftWrap {
   /// Unwraps a gift-wrapped event to retrieve the original rumor \
   /// [giftWrap] the gift-wrapped event to unwrap \
   /// [returns] the original rumor event
-  Future<UnsignedEvent> fromGiftWrap({required UnsignedEvent giftWrap}) async {
+  Future<UnsignedEvent> fromGiftWrap({required Nip01Event giftWrap}) async {
     if (giftWrap.kind != kGiftWrapEventkind) {
       throw Exception("Event is not a gift wrap (kind:1059)");
     }
@@ -103,7 +103,7 @@ class GiftWrap {
     return sealEvent;
   }
 
-  Future<Nip01Event> unsealRumor({required Nip01Event sealedEvent}) async {
+  Future<UnsignedEvent> unsealRumor({required Nip01Event sealedEvent}) async {
     final account = accounts.getLoggedAccount();
     if (account == null) {
       throw Exception("Cannot decrypt without account");
@@ -120,7 +120,7 @@ class GiftWrap {
 
     // Parse the rumor event
     final Map<String, dynamic> rumorJson = jsonDecode(decryptedRumorJson);
-    final rumor = Nip01Event.fromJson(rumorJson);
+    final rumor = UnsignedEvent.fromJson(rumorJson);
 
     return rumor;
   }
